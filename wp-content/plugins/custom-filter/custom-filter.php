@@ -6,6 +6,11 @@ Description: Фильтр по полям ACF
 Version: 0.1
 Author: dima.k
 */
+//https://wp-admin.com.ua/hranenie-dannyih-v-vordpress/ - про хранение настроек в бд
+// планирую сохранять настройки а ля json (или в сериализованном виде)
+// {post_type: {field_name : { type : 'select/range/checkbox/radio', show: Y/N }, {type...} }, {field{...}...}} -  может быть дополнить
+//при выводе нужно выводить поля как сейчас. данные будут отправляться формой. данные о типе, выводе и пр. получать из настроек по post_type и field
+// выводимый тип поля зависит от типа поля в acf, например range может быть только у number
 add_action('admin_menu', 'addMenu');
 function addMenu()
 {
