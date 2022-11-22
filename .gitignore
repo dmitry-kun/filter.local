@@ -31,7 +31,7 @@ wp-content/plugins/*
 wp-content/languages/*
 wp-content/uploads/*
 !wp-content/uploads/alm_templates
-!wp-content/plugins/admin-localization
+!wp-content/plugins/custom-filter
 /.idea/
 wp-config.php
 wp-cron.php

@@ -72,3 +72,5 @@ add_action( 'widgets_init', 'widget_register_wp_sidebars' );
 
 /* Изображение записи */
 add_theme_support( 'post-thumbnails' );
+
+include 'site-functions/post-types.php';
