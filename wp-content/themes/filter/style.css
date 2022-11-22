@@ -1,0 +1,17 @@
+/*
+Theme Name: Theme
+Author: I
+Author URI: https://
+Version: 1.0
+*/
+
+@font-face {}
+
+body {}
+h1, h2, h3, h4, h5, h6 {}
+p, dl, ol, ul {margin: 0;padding: 0;}
+li {list-style: none;}
+a, path {transition: all 0.5s;}
+a:hover {text-decoration: none;}
+button {background: none;border: none;}
+button:focus {outline: none;}

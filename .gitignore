@@ -1,0 +1,45 @@
+ehthumbs.db
+Thumbs.db
+
+
+# ignore log files and databases
+*.log
+*.sql
+*.sqlite
+
+# ignore compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# ignore packaged files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+wp-admin/*
+wp-includes/*
+wp-content/cache/*
+wp-content/plugins/*
+wp-content/languages/*
+wp-content/uploads/*
+!wp-content/uploads/alm_templates
+!wp-content/plugins/admin-localization
+/.idea/
+wp-config.php
+wp-cron.php
+wp-mail.php
+wp-settings.php
+wp-signup.php
+wp-activate.php
+wp-load.php
+wp-login.php
+robots.txt
+.htaccess
