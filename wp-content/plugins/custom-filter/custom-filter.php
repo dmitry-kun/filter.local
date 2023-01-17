@@ -1,6 +1,4 @@
 <?php
-include 'classes/Helper.php';
-
 define( 'MY_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 /*
 Plugin Name: ACF Filter

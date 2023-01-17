@@ -9,6 +9,7 @@ if(! function_exists('addMenu')) {
 
 if(! function_exists('loadClasses')) {
     function loadClasses() {
+        include( MY_PLUGIN_PATH . 'classes/Helper.php');
         include( MY_PLUGIN_PATH . 'classes/PropertyFactory.php');
         include( MY_PLUGIN_PATH . 'classes/PropertyWorker.php');
     }
