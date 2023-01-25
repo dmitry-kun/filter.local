@@ -34,26 +34,29 @@ if(!function_exists('filterSettingsPage')) {
                 add_option('cf_'.$post_type->name, "");
             }
             $postTypeSettingsObj = PropertyFactory::getPropertyByName($post_type->name);
+            //$postTypeSettingsObj->setFields();
             var_dump($postTypeSettingsObj);
             $postTypeSettings = json_decode(get_option('cf_'.$post_type->name));
             echo '<p>' . $post_type->label . '</p>';
             echo '<p>' . $post_type->name . '</p>';
             $groups = acf_get_field_groups(array('post_type' => $post_type->name));
             foreach ($groups as $group_key) { //todo сделать форму, обработать поля и сделать update_field. поля закинуть в json формат. ключ - код поля ($field['name']), значение - массив из двух ключей: тип (чекбокс, диапазон чисел, радио и т.д.) и checked (значение выводить или нет)?>
-                <form action="">
-                    <input type="hidden" value="<?='cf_'.$post_type->name?>">
+                <div>
                     <?
                     $fields = acf_get_fields($group_key['key']);
                     foreach ($fields as $field) { //todo нужно выводить поля как-то по ключу искать значения в массиве из опции. если значение есть, то подставлять в форму, если нет -
-                        if(array_key_exists($field['name'], $postTypeSettings)) {
+                        if($postTypeSettings && array_key_exists($field['name'], $postTypeSettings)) {
                             $type = $postTypeSettings[$field['name']]['type'];
                             $checked = $postTypeSettings[$field['name']]['checked'];
                         }
                         ?>
+                        <form action="">
+                        <input type="hidden" value="<?=$post_type->name?>" name="property_name">
+                        <input type="hidden" value="<?=$field['type']?>" name="property_acf_type">
                         <fieldset>
                             <label for="">
                                 <b><?=$field['label']?></b>
-                                <select name="<?='type_'.$field['name']?>">
+                                <select name="property_type">
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -62,15 +65,16 @@ if(!function_exists('filterSettingsPage')) {
                             </label>
                             <label>
                                 Выводить
-                                <input type="checkbox" name="<?='check_'.$field['name']?>" value="N">
+                                <input type="checkbox" name="property_show" value="N">
                             </label>
                         </fieldset>
                         field:
                         code: <b><?=$field['name']?></b>
                         type: <b><?=$field['type']?></b>
+                        </form>
                         <?
                     } ?>
-                </form>
+                </div>
                 <?
             }
         }

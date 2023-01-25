@@ -7,7 +7,7 @@ class PropertyWorker
     private $acfType;
     private $outputType;
     private $isOff;
-    private $arrayPropertyKeys = ['acf_type', 'type', 'show'];
+    private $arrayPropertyKeys = ['acf_type', 'type', 'show']; //todo добавить поле для сортировки
 
     public function __construct($propertyName) {
         $this->propertyName = $propertyName;
@@ -30,6 +30,9 @@ class PropertyWorker
 
     private function getProperty()
     {
+        if (!Helper::option_exists('cf_'.$this->propertyName)) {
+            add_option('cf_'.$this->propertyName, "");
+        }
         return get_option('cf_'.$this->propertyName);
     }
 
