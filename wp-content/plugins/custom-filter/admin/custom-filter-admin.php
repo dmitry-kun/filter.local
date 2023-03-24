@@ -12,6 +12,7 @@ if(! function_exists('loadClasses')) {
         include( MY_PLUGIN_PATH . 'classes/Helper.php');
         include( MY_PLUGIN_PATH . 'classes/PropertyFactory.php');
         include( MY_PLUGIN_PATH . 'classes/PropertyWorker.php');
+        include( MY_PLUGIN_PATH . 'classes/FieldWatcher.php');
     }
 }
 add_action('plugins_loaded', 'loadClasses');
@@ -33,10 +34,6 @@ if(!function_exists('filterSettingsPage')) {
             if (!Helper::option_exists('cf_'.$post_type->name)) {
                 add_option('cf_'.$post_type->name, "");
             }
-            $postTypeSettingsObj = PropertyFactory::getPropertyByName($post_type->name);
-            //$postTypeSettingsObj->setFields();
-            var_dump($postTypeSettingsObj);
-            $postTypeSettings = json_decode(get_option('cf_'.$post_type->name));
             echo '<p>' . $post_type->label . '</p>';
             echo '<p>' . $post_type->name . '</p>';
             $groups = acf_get_field_groups(array('post_type' => $post_type->name));
@@ -45,32 +42,51 @@ if(!function_exists('filterSettingsPage')) {
                     <?
                     $fields = acf_get_fields($group_key['key']);
                     foreach ($fields as $field) { //todo нужно выводить поля как-то по ключу искать значения в массиве из опции. если значение есть, то подставлять в форму, если нет -
-                        if($postTypeSettings && array_key_exists($field['name'], $postTypeSettings)) {
-                            $type = $postTypeSettings[$field['name']]['type'];
-                            $checked = $postTypeSettings[$field['name']]['checked'];
+                        if(!FieldWatcher::checkIsFieldTypeAllowed($field['type'])){
+                            continue;
+                        }
+                        $propertyBaseName = $post_type->name.'_'.$field['name'];
+                        $type = '';
+                        $acfType = $field['type'];
+                        $acfName = $field['name'];
+                        $checked = '';
+                        $sort = '500';
+                        $fieldSettingsObj = PropertyFactory::getPropertyByName($propertyBaseName);
+                        $fieldSettingsObj->setFields();
+                        //var_dump($fieldSettingsObj->acfName);
+                        if($fieldSettingsObj && $fieldSettingsObj->acfName) { //todo без магического метода
+                            $type = $fieldSettingsObj['type'];
+                            $acfType = $fieldSettingsObj['acf_type'];
+                            $acfName = $fieldSettingsObj['acf_name'];
+                            $checked = $fieldSettingsObj['checked'];
+                            $sort = $fieldSettingsObj['sort'];
                         }
                         ?>
                         <form action="">
-                        <input type="hidden" value="<?=$post_type->name?>" name="property_name">
-                        <input type="hidden" value="<?=$field['type']?>" name="property_acf_type">
-                        <fieldset>
-                            <label for="">
-                                <b><?=$field['label']?></b>
-                                <select name="property_type">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                </select>
-
-                            </label>
-                            <label>
-                                Выводить
-                                <input type="checkbox" name="property_show" value="N">
-                            </label>
-                        </fieldset>
-                        field:
-                        code: <b><?=$field['name']?></b>
-                        type: <b><?=$field['type']?></b>
+                            <input type="hidden" value="<?=$propertyBaseName?>" name="property_name">
+                            <input type="hidden" value="<?=$acfType?>" name="property_acf_type">
+                            <input type="hidden" value="<?=$acfName?>" name="property_acf_name">
+                            <fieldset>
+                                <label for="">
+                                    <b><?=$field['label']?></b>
+                                    <?FieldWatcher::printFilterTypesSelect('property_type', $acfType, $type)?>
+                                </label>
+                            </fieldset>
+                            <fieldset>
+                                <label>
+                                    Выводить
+                                    <input type="checkbox" name="property_show" value="<?=$checked?>">
+                                </label>
+                                <label>
+                                    Сортировка
+                                    <input type="number" name="property_sort" value="<?=$sort?>">
+                                </label>
+                            </fieldset>
+                            <fieldset>
+                            </fieldset>
+                            field:
+                            code: <b><?=$field['name']?></b>
+                            type: <b><?=$field['type']?></b>
                         </form>
                         <?
                     } ?>
