@@ -3,11 +3,13 @@
 
 class PropertyWorker
 {
-    private $propertyName;
-    private $acfType;
-    private $outputType;
-    private $isOff;
-    private $arrayPropertyKeys = ['acf_type', 'type', 'show']; //todo добавить поле для сортировки
+    private $propertyName; //название свойства в таблице
+    private $acfType; //тип поля acf (number, select etc.)
+    private $acfName; // Ключ поля acf
+    private $outputType; // выводимый тип (то, как будет выглядеть в самом фильтре)
+    private $isShow; // выводить - да/net
+    private $sort; // сортировка
+    private $arrayPropertyKeys = ['acf_type', 'acf_name', 'type', 'show', 'sort'];
 
     public function __construct($propertyName) {
         $this->propertyName = $propertyName;
@@ -54,7 +56,7 @@ class PropertyWorker
     }
 
     /**
-     * @param $fieldsArr array - field's array using acf_type, type and show keys
+     * @param $fieldsArr array - field's array using acf_type, type, show and sort keys
      * @return string
      */
     public function updateProperty($fieldsArr)
@@ -84,11 +86,17 @@ class PropertyWorker
                 case 'acf_type':
                     $this->acfType = $fieldVal;
                     break;
+                case 'acf_name':
+                    $this->acfName = $fieldVal;
+                    break;
                 case 'type':
                     $this->outputType = $fieldVal;
                     break;
                 case 'show':
-                    $this->isOff = $fieldVal;
+                    $this->isShow = $fieldVal;
+                    break;
+                case 'sort':
+                    $this->sort = $fieldVal;
                     break;
                 default:
                     break;

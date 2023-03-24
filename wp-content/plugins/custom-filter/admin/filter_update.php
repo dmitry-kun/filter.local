@@ -16,7 +16,13 @@ if(Helper::isAjax(true)) {
         return false;
     }
     $formData = json_decode($postData, true);
-    if (!$formData['property_name'] && !$formData['property_show'] && !$formData['property_type']&& !$formData['property_acf_type']) {
+    if (!$formData['property_name'] &&
+        !$formData['property_show'] &&
+        !$formData['property_type'] &&
+        !$formData['property_acf_type'] &&
+        !$formData['property_acf_name'] &&
+        !$formData['property_sort']
+    ) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
         return false;
     }
@@ -25,8 +31,10 @@ if(Helper::isAjax(true)) {
 
     $fieldsArr = [
         'acf_type' => $formData['property_acf_type'],
+        'acf_name' => $formData['property_acf_name'],
         'type' => $formData['property_type'],
-        'show' => $formData['property_show']
+        'show' => $formData['property_show'],
+        'sort' => $formData['property_sort']
     ];
 
     $outputMessage = $postTypeSettingsObj->updateProperty($fieldsArr);
