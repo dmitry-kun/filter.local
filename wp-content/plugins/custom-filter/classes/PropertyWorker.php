@@ -4,15 +4,19 @@
 class PropertyWorker
 {
     private $propertyName; //название свойства в таблице
-    private $acfType; //тип поля acf (number, select etc.)
+    private $propertyArray = [];
+    private $arrayPropertyKeys = ['acf_name', 'type', 'show', 'sort'];
+
+    // deprecated fields below
     private $acfName; // Ключ поля acf
     private $outputType; // выводимый тип (то, как будет выглядеть в самом фильтре)
     private $isShow; // выводить - да/net
     private $sort; // сортировка
-    private $arrayPropertyKeys = ['acf_type', 'acf_name', 'type', 'show', 'sort'];
+
 
     public function __construct($propertyName) {
         $this->propertyName = $propertyName;
+        $this->setFields();
     }
 
     public function __get($name)
@@ -51,8 +55,13 @@ class PropertyWorker
     {
         $fieldsArr = $this->getPropertyValueAsArray();
         if(is_array($fieldsArr)) {
-            $this->installFields($fieldsArr);
+            $this->propertyArray = $fieldsArr;
         }
+    }
+
+    public function getPropertyArray()
+    {
+        return $this->propertyArray;
     }
 
     /**
@@ -69,9 +78,13 @@ class PropertyWorker
             if(is_array($checkKeysRes)) {
                 throw new Exception(implode('/', $checkKeysRes));
             }
-            $this->installFields($fieldsArr);
 
-            update_option( 'cf_'.$this->propertyName, json_encode($fieldsArr) );
+            $isUpdateFieldsArray = $this->setNewPropertyInPropertyList($fieldsArr);
+            if (!$isUpdateFieldsArray) {
+                throw new Exception('Ошибка в методе setNewPropertyInPropertyList');
+            }
+
+            update_option( 'cf_'.$this->propertyName, json_encode($this->propertyArray) );
 
         } catch (Exception $e) {
             return $e->getMessage();
@@ -79,13 +92,11 @@ class PropertyWorker
         return 'ok';
     }
 
+    //deprecated method
     private function installFields($fieldsArr)
     {
         foreach ($fieldsArr as $fieldName => $fieldVal) {
             switch ($fieldName) {
-                case 'acf_type':
-                    $this->acfType = $fieldVal;
-                    break;
                 case 'acf_name':
                     $this->acfName = $fieldVal;
                     break;
@@ -115,6 +126,21 @@ class PropertyWorker
         if(!empty($messagesArray)) {
             return $messagesArray;
         }
+        return true;
+    }
+
+    private function setNewPropertyInPropertyList($fieldsArr)
+    {
+        if( !$fieldsArr['acf_name'] ||
+            !$fieldsArr['type'] ||
+            !$fieldsArr['show'] ||
+            $fieldsArr['sort']
+        ) {
+            return false;
+        }
+        $this->propertyArray[$fieldsArr['acf_name']]['type'] = $fieldsArr['type'];
+        $this->propertyArray[$fieldsArr['acf_name']]['show'] = $fieldsArr['show'];
+        $this->propertyArray[$fieldsArr['acf_name']]['sort'] = $fieldsArr['sort'];
         return true;
     }
 }

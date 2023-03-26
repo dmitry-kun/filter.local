@@ -1,4 +1,22 @@
 <?php
+/*
+ * Архитектура свойства в базе на примере массива:
+ * Столбец option_name - название опции, в нашем случае cf_тип_таксономии
+ * Столбец option_value хранит значения всех сохраненных свойств в виде массива:
+    $arr = [
+        'field_name' => [
+            'type' => 'checkbox',
+            'show' => 'Y',
+            'sort' => '500',
+        ],
+        'field_name2' => [
+            'type' => 'checkbox',
+            'show' => 'Y',
+            'sort' => '500',
+        ]
+    ];
+ * в формате json
+ * */
 add_action('admin_menu', 'addMenu');
 if(! function_exists('addMenu')) {
     function addMenu()
@@ -30,41 +48,40 @@ if(!function_exists('filterSettingsPage')) {
 
         $post_types = get_post_types( $args, $output, $operator );
 
-        foreach ( $post_types  as $post_type ) { //todo проверять есть ли опция и делать get_option
-            if (!Helper::option_exists('cf_'.$post_type->name)) {
-                add_option('cf_'.$post_type->name, "");
-            }
+        foreach ( $post_types  as $post_type ) {
+            $postTypeName = $post_type->name;
             echo '<p>' . $post_type->label . '</p>';
-            echo '<p>' . $post_type->name . '</p>';
-            $groups = acf_get_field_groups(array('post_type' => $post_type->name));
-            foreach ($groups as $group_key) { //todo сделать форму, обработать поля и сделать update_field. поля закинуть в json формат. ключ - код поля ($field['name']), значение - массив из двух ключей: тип (чекбокс, диапазон чисел, радио и т.д.) и checked (значение выводить или нет)?>
+            echo '<p>' . $postTypeName . '</p>';
+            $postTypeSettingsObj = PropertyFactory::getPropertyByName($postTypeName);
+            $settingsArray = $postTypeSettingsObj->getPropertyArray();
+            $groups = acf_get_field_groups(array('post_type' => $postTypeName));
+            foreach ($groups as $group_key) { //todo сделать форму ?>
                 <div>
                     <?
                     $fields = acf_get_fields($group_key['key']);
-                    foreach ($fields as $field) { //todo нужно выводить поля как-то по ключу искать значения в массиве из опции. если значение есть, то подставлять в форму, если нет -
+                    foreach ($fields as $field) {
                         if(!FieldWatcher::checkIsFieldTypeAllowed($field['type'])){
                             continue;
                         }
-                        $propertyBaseName = $post_type->name.'_'.$field['name'];
                         $type = '';
                         $acfType = $field['type'];
                         $acfName = $field['name'];
                         $checked = '';
                         $sort = '500';
-                        $fieldSettingsObj = PropertyFactory::getPropertyByName($propertyBaseName);
-                        $fieldSettingsObj->setFields();
-                        //var_dump($fieldSettingsObj->acfName);
-                        if($fieldSettingsObj && $fieldSettingsObj->acfName) { //todo без магического метода
-                            $type = $fieldSettingsObj['type'];
-                            $acfType = $fieldSettingsObj['acf_type'];
-                            $acfName = $fieldSettingsObj['acf_name'];
-                            $checked = $fieldSettingsObj['checked'];
-                            $sort = $fieldSettingsObj['sort'];
+                        if (!empty($settingsArray) && array_key_exists($acfName, $settingsArray)) {
+                            if ($settingsArray[$acfName]['type']) {
+                                $type = $settingsArray[$acfName]['type'];
+                            }
+                            if ($settingsArray[$acfName]['checked']) {
+                                $checked = $settingsArray[$acfName]['checked'];
+                            }
+                            if ($settingsArray[$acfName]['sort']) {
+                               $sort = $settingsArray[$acfName]['sort'];
+                            }
                         }
                         ?>
                         <form action="">
-                            <input type="hidden" value="<?=$propertyBaseName?>" name="property_name">
-                            <input type="hidden" value="<?=$acfType?>" name="property_acf_type">
+                            <input type="hidden" value="<?=$postTypeName?>" name="property_name">
                             <input type="hidden" value="<?=$acfName?>" name="property_acf_name">
                             <fieldset>
                                 <label for="">
@@ -85,8 +102,8 @@ if(!function_exists('filterSettingsPage')) {
                             <fieldset>
                             </fieldset>
                             field:
-                            code: <b><?=$field['name']?></b>
-                            type: <b><?=$field['type']?></b>
+                            code: <b><?=$acfName?></b>
+                            type: <b><?=$acfType?></b>
                         </form>
                         <?
                     } ?>

@@ -19,7 +19,6 @@ if(Helper::isAjax(true)) {
     if (!$formData['property_name'] &&
         !$formData['property_show'] &&
         !$formData['property_type'] &&
-        !$formData['property_acf_type'] &&
         !$formData['property_acf_name'] &&
         !$formData['property_sort']
     ) {
@@ -30,7 +29,6 @@ if(Helper::isAjax(true)) {
     $postTypeSettingsObj = PropertyFactory::getPropertyByName($formData['property_name']);
 
     $fieldsArr = [
-        'acf_type' => $formData['property_acf_type'],
         'acf_name' => $formData['property_acf_name'],
         'type' => $formData['property_type'],
         'show' => $formData['property_show'],
